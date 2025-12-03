@@ -1,0 +1,41 @@
+{
+  "compilerOptions": {
+    /* Strictness */
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "noImplicitOverride": true,
+    "composite": true,
+    "declaration": true,
+    "declarationMap": true,
+    "target": "ES2022",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "allowJs": true,
+    "checkJs": false,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "jsx": "preserve",
+    "outDir": "./dist",
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "emitDeclarationOnly": true,
+    "sourceMap": true,
+    "lib": ["DOM", "DOM.Iterable", "ES2022"],
+    "types": ["node"],
+    "incremental": true,
+    "isolatedModules": true,
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
+    "paths": {
+        "@nexo-labs/hegel": ["./packages/hegel/src"],
+        "@nexo-labs/payload-lexical-blocks-builder": ["./packages/payload-lexical-blocks-builder/src"],
+        "@nexo-labs/payload-stripe-inventory": ["./packages/payload-stripe-inventory/src"],
+        "@nexo-labs/payload-taxonomies": ["./packages/payload-taxonomies/src"],
+        "@nexo-labs/payload-typesense": ["./packages/payload-typesense/src"]
+    }
+  },
+  "exclude": ["./dist", "./build", "./temp", "**/*.spec.ts"]
+}

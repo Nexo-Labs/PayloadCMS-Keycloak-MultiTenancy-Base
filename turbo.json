@@ -1,0 +1,28 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "tasks": {
+    "build": {
+      "dependsOn": ["^build"],
+      "inputs": ["$TURBO_DEFAULT", ".env*"],
+      "outputs": [".turbo/**", ".next/**", ".vercel/**", "build/**"]
+    },
+    "lint": {},
+    "devcontainer": {
+      "cache": false,
+      "persistent": true
+    },
+    "dev": {
+      "cache": false,
+      "persistent": true
+    },
+    "start": {
+      "dependsOn": ["^build"]
+    },
+    "storybook": {
+      "cache": false,
+      "persistent": true,
+      "dependsOn": [],
+      "outputs": []
+    }
+  }
+}

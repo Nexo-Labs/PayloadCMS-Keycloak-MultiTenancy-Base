@@ -1,0 +1,12 @@
+http:
+  routers:
+    keycloak-dev:
+      rule: "Host(`keycloak-dev.localhost`)"
+      entryPoints:
+        - web
+      service: keycloak-dev
+  services:
+    keycloak-dev:
+      loadBalancer:
+        servers:
+          - url: "http://host.docker.internal:8081"

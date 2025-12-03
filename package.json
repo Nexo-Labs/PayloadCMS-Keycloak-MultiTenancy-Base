@@ -1,0 +1,38 @@
+{
+  "private": true,
+  "scripts": {
+    "build:no-logs": "turbo run build --output-logs=errors-only",
+    "build": "turbo run build --continue",
+    "build:web": "turbo run build --filter=web",
+    "start": "turbo run start",
+    "start:web": "turbo run start --filter=web",
+    "dev": "turbo run dev --parallel",
+    "devcontainer": "turbo run devcontainer --parallel",
+    "dev:server": "turbo run dev --filter=server",
+    "dev:web": "turbo run dev --filter=web",
+    "build:server": "turbo run build --filter=server",
+    "start:server": "turbo run start --filter=server",
+    "storybook": "turbo run storybook --filter=server",
+    "lint": "turbo run lint",
+    "format": "prettier --write ."
+  },
+  "devDependencies": {
+    "@types/react": "^19.0.12",
+    "eslint": "^9.19.0",
+    "prettier": "^3.4.2",
+    "tsdown": "^0.16.5",
+    "turbo": "^2.4.0"
+  },
+  "pnpm": {
+    "overrides": {
+      "react": "19.1.0"
+    }
+  },
+  "engines": {
+    "node": "25.x || 22.x || 23.x || 24.x"
+  },
+  "name": "keycloak-multi-tenant",
+  "dependencies": {
+    "cross-env": "^7.0.3"
+  }
+}

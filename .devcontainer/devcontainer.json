@@ -1,0 +1,61 @@
+{
+  "name": "Multi Tenancy Payload Example",
+  "dockerComposeFile": "docker-compose.yml",
+  "service": "app",
+  "runServices": ["db", "keycloak", "typesense", "app", "typesense-dashboard"],
+  "forwardPorts": [3000, 6006, 5432, 8080, 8081],
+  "portsAttributes": {
+    "3000": {
+      "label": "Next.js App",
+      "onAutoForward": "openPreview"
+    },
+    "6006": {
+      "label": "Storybook",
+      "onAutoForward": "openPreview"
+    },
+    "5432": {
+      "label": "PostgreSQL Database",
+      "onAutoForward": "ignore"
+    },
+    "8080": {
+      "label": "Keycloak Auth",
+      "onAutoForward": "openPreview"
+    }
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-vscode-remote.remote-containers",
+        "dbaeumer.vscode-eslint",
+        "ms-azuretools.vscode-docker",
+        "ms-vscode.vscode-typescript-next",
+        "github.vscode-github-actions",
+        "esbenp.prettier-vscode",
+        "bradlc.vscode-tailwindcss",
+        "unifiedjs.vscode-mdx"
+      ],
+      "settings": {
+        "editor.formatOnSave": true,
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "editor.codeActionsOnSave": {
+          "source.fixAll.eslint": "always",
+          "source.removeUnusedImports": "always",
+          "source.sortImports": "always"
+        },
+        "typescript.tsdk": "node_modules/typescript/lib"
+      }
+    }
+  },
+  "postCreateCommand": "pnpm install && echo 'Verificando servicios...' && .devcontainer/check-services.sh",
+  "postStartCommand": "echo 'Esperando a que los servicios estén listos...' && sleep 10 && echo 'Para iniciar el servidor de desarrollo, ejecuta: pnpm dev'",
+  "otherPortsAttributes": {
+    "onAutoForward": "notify"
+  },
+  "workspaceFolder": "/workspace",
+  "shutdownAction": "stopCompose",
+  "initializeCommand": "echo 'Iniciando devcontainer con todos los servicios...'",
+  "overrideCommand": false,
+  "remoteEnv": {
+    "EDITOR": "cursor"
+  }
+}

@@ -1,0 +1,145 @@
+services:
+  traefik:
+    image: traefik:v3.0
+    container_name: traefik
+    restart: unless-stopped
+    command:
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--providers.file.directory=/etc/traefik/dynamic"
+      - "--providers.file.watch=true"
+      - "--log.level=DEBUG"
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8080:8080" # Traefik dashboard
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./traefik:/etc/traefik/dynamic:ro
+      - ./traefik/certs:/etc/traefik/certs:ro
+    networks:
+      - default_network
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ..:/workspace:cached
+      - node_modules:/workspace/node_modules:delegated
+    command: sleep infinity
+    # Remove direct port mapping, use Traefik instead
+    env_file:
+      - .devcontainer.env
+    depends_on:
+      - db
+      - keycloak
+      - traefik
+    networks:
+      - default_network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.app.rule=Host(`app.localhost`)"
+      - "traefik.http.routers.app.entrypoints=websecure"
+      - "traefik.http.routers.app.tls=true"
+      - "traefik.http.services.app.loadbalancer.server.port=3000"
+      - "traefik.http.routers.app-storybook.rule=Host(`storybook.localhost`)"
+      - "traefik.http.routers.app-storybook.entrypoints=websecure"
+      - "traefik.http.routers.app-storybook.tls=true"
+      - "traefik.http.services.app-storybook.loadbalancer.server.port=6006"
+
+  db:
+    container_name: db
+    image: postgres:17-alpine
+    restart: always
+    volumes:
+      - ../.docker/postgres:/var/lib/postgresql/data
+      - ../keycloak/init-keycloak-db.sql:/docker-entrypoint-initdb.d/init-keycloak-db.sql:ro
+    ports:
+      - "5432:5432"
+    env_file:
+      - .devcontainer.env
+    networks:
+      - default_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  keycloak:
+    build:
+      context: ../keycloak
+      dockerfile: Dockerfile
+    container_name: keycloak
+    restart: unless-stopped
+    environment:
+      - KEYCLOAK_ADMIN=admin
+      - KEYCLOAK_ADMIN_PASSWORD=admin
+      - KC_DB=postgres
+      - KC_DB_URL=jdbc:postgresql://db:5432/keycloak-db
+      - KC_DB_USERNAME=admin
+      - KC_DB_PASSWORD=devsecret
+      - KC_HOSTNAME_STRICT=false
+      - KC_HOSTNAME=auth.localhost
+      - KC_HTTP_ENABLED=true
+      - KC_HOSTNAME_STRICT_HTTPS=true
+      - KC_HEALTH_ENABLED=true
+      - KC_METRICS_ENABLED=true
+      - KC_PROXY=edge
+    volumes:
+      - ../keycloak/.keycloakify/realm-kc-26.json:/opt/keycloak/data/import/realm.json:ro
+    depends_on:
+      - db
+      - traefik
+    command: ["start-dev", "--import-realm"]
+    networks:
+      - default_network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.keycloak.rule=Host(`auth.localhost`)"
+      - "traefik.http.routers.keycloak.entrypoints=websecure"
+      - "traefik.http.routers.keycloak.tls=true"
+      - "traefik.http.services.keycloak.loadbalancer.server.port=8080"
+
+  typesense:
+    image: typesense/typesense:30.0.rc29
+    container_name: typesense
+    restart: unless-stopped
+    ports:
+      - "8108:8108"
+    volumes:
+      - ../.docker/typesense-data:/data
+    command: ["--data-dir", "/data", "--api-key=xyz", "--enable-cors"]
+    networks:
+      - default_network
+    depends_on:
+      - traefik
+
+  typesense-dashboard:
+    image: ghcr.io/bfritscher/typesense-dashboard:latest
+    container_name: typesense_dashboard
+    restart: unless-stopped
+    depends_on:
+      - typesense
+      - traefik
+    networks:
+      - default_network
+    ports:
+      - "8081:80"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.typesense-dashboard.rule=Host(`typesense.localhost`)"
+      - "traefik.http.routers.typesense-dashboard.entrypoints=websecure"
+      - "traefik.http.routers.typesense-dashboard.tls=true"
+      - "traefik.http.services.typesense-dashboard.loadbalancer.server.port=80"
+
+volumes:
+  node_modules:
+
+networks:
+  default_network:
+    driver: bridge
