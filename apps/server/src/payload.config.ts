@@ -1,4 +1,3 @@
-import { mongooseAdapter } from '@payloadcms/db-mongodb'
 import { postgresAdapter } from '@payloadcms/db-postgres'
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
 import path from 'path'
@@ -13,6 +12,7 @@ import { isSuperAdmin } from './access/isSuperAdmin'
 import type { Config } from './payload-types'
 import { getUserTenantIDs } from './utilities/getUserTenantIDs'
 import { seed } from './seed'
+import authJs from './modules/authjs'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -62,5 +62,6 @@ export default buildConfig({
       },
       userHasAccessToAllTenants: (user) => isSuperAdmin(user),
     }),
+    authJs,
   ],
 })

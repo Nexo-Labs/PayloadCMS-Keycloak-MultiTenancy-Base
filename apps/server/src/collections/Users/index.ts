@@ -92,6 +92,14 @@ const Users: CollectionConfig = {
       },
     },
     {
+      name: 'id_token',
+      type: 'text',
+      admin: {
+        description: 'OpenID Connect ID Token (usado para logout con Keycloak)',
+        readOnly: true,
+      },
+    },
+    {
       name: 'username',
       type: 'text',
       hooks: {

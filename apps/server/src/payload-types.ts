@@ -157,9 +157,17 @@ export interface Tenant {
  * via the `definition` "users".
  */
 export interface User {
-  id: number;
+  id: string;
+  email: string;
+  emailVerified?: string | null;
+  name?: string | null;
+  image?: string | null;
   password?: string | null;
   roles?: ('super-admin' | 'user')[] | null;
+  /**
+   * OpenID Connect ID Token (usado para logout con Keycloak)
+   */
+  id_token?: string | null;
   username?: string | null;
   tenants?:
     | {
@@ -168,22 +176,23 @@ export interface User {
         id?: string | null;
       }[]
     | null;
-  updatedAt: string;
-  createdAt: string;
-  email: string;
-  resetPasswordToken?: string | null;
-  resetPasswordExpiration?: string | null;
-  salt?: string | null;
-  hash?: string | null;
-  loginAttempts?: number | null;
-  lockUntil?: string | null;
-  sessions?:
+  accounts?:
     | {
-        id: string;
-        createdAt?: string | null;
-        expiresAt: string;
+        provider: string;
+        providerAccountId: string;
+        type: string;
+        id?: string | null;
       }[]
     | null;
+  sessions?:
+    | {
+        sessionToken: string;
+        expires: string;
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -215,7 +224,7 @@ export interface PayloadLockedDocument {
       } | null)
     | ({
         relationTo: 'users';
-        value: number | User;
+        value: string | User;
       } | null)
     | ({
         relationTo: 'tenants';
@@ -224,7 +233,7 @@ export interface PayloadLockedDocument {
   globalSlug?: string | null;
   user: {
     relationTo: 'users';
-    value: number | User;
+    value: string | User;
   };
   updatedAt: string;
   createdAt: string;
@@ -237,7 +246,7 @@ export interface PayloadPreference {
   id: number;
   user: {
     relationTo: 'users';
-    value: number | User;
+    value: string | User;
   };
   key?: string | null;
   value?:
@@ -279,8 +288,14 @@ export interface PagesSelect<T extends boolean = true> {
  * via the `definition` "users_select".
  */
 export interface UsersSelect<T extends boolean = true> {
+  id?: T;
+  email?: T;
+  emailVerified?: T;
+  name?: T;
+  image?: T;
   password?: T;
   roles?: T;
+  id_token?: T;
   username?: T;
   tenants?:
     | T
@@ -289,22 +304,23 @@ export interface UsersSelect<T extends boolean = true> {
         roles?: T;
         id?: T;
       };
-  updatedAt?: T;
-  createdAt?: T;
-  email?: T;
-  resetPasswordToken?: T;
-  resetPasswordExpiration?: T;
-  salt?: T;
-  hash?: T;
-  loginAttempts?: T;
-  lockUntil?: T;
+  accounts?:
+    | T
+    | {
+        provider?: T;
+        providerAccountId?: T;
+        type?: T;
+        id?: T;
+      };
   sessions?:
     | T
     | {
+        sessionToken?: T;
+        expires?: T;
         id?: T;
-        createdAt?: T;
-        expiresAt?: T;
       };
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

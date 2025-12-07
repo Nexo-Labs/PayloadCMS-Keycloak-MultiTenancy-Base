@@ -23,11 +23,6 @@
     "tsdown": "^0.16.5",
     "turbo": "^2.4.0"
   },
-  "pnpm": {
-    "overrides": {
-      "react": "19.1.0"
-    }
-  },
   "engines": {
     "node": "25.x || 22.x || 23.x || 24.x"
   },
