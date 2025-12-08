@@ -3,23 +3,22 @@
  * https://ulasozdemir.com.tr/enterprise-level-authentication-in-a-containerized-environment-for-nextjs-13
  */
 
-import type { NextAuthConfig } from "next-auth";
 import keycloak from "next-auth/providers/keycloak";
+import type { EnrichedAuthConfig } from "payload-authjs";
 import { jwtCallback } from "./callbacks/jwt";
 import { profileCallback } from "./callbacks/profile";
 import { sessionCallback } from "./callbacks/session";
+import { signInCallback } from "./callbacks/signIn";
 import { SESSION_STRATEGY } from "./constants";
 
-export {
-  SESSION_STRATEGY,
-} from "./constants";
+export { SESSION_STRATEGY } from "./constants";
 
 // URLs de Keycloak
 const KEYCLOAK_PUBLIC_URL = process.env.NEXT_PUBLIC_LOCAL_KEYCLOAK_URL;
 const KEYCLOAK_INTERNAL_URL = process.env.NEXT_CONTAINER_KEYCLOAK_ENDPOINT;
 const REALM = process.env.NEXT_PUBLIC_KC_REALM;
 
-export const authConfig: NextAuthConfig = {
+export const authConfig: EnrichedAuthConfig = {
   theme: { logo: "https://authjs.dev/img/logo-sm.png" },
   trustHost: true,
   secret: process.env.AUTH_SECRET,
@@ -54,7 +53,7 @@ export const authConfig: NextAuthConfig = {
   },
 
   callbacks: {
-    signIn: () => true,
+    signIn: signInCallback,
     jwt: jwtCallback,
     session: sessionCallback,
   },
