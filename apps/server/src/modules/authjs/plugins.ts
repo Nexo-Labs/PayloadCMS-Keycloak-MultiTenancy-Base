@@ -1,12 +1,18 @@
 import payloadConfig from "@payload-config";
 import NextAuth from "next-auth";
-import { withPayload } from "payload-authjs";
+import { getPayload } from "payload";
+import { withPayloadAuthjs } from "payload-authjs";
 import { authConfig } from "./authjs-config";
 
-const nextAuthResult = NextAuth(
-  withPayload(authConfig, {
-    payloadConfig,
-    updateUserOnSignIn: true,
+/**
+ * Auth.js configuration with lazy initialization (v0.9.0+)
+ * @see https://github.com/CrawlerCode/payload-authjs/releases/tag/v0.9.0
+ */
+const nextAuthResult = NextAuth(async () =>
+  withPayloadAuthjs({
+    payload: await getPayload({ config: payloadConfig }),
+    config: authConfig,
+    collectionSlug: "users",
   })
 );
 
