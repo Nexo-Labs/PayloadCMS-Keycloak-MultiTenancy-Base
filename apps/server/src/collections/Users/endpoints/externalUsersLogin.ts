@@ -27,15 +27,15 @@ export const externalUsersLogin: Endpoint = {
         collection: 'tenants',
         where: tenantDomain
           ? {
-              domain: {
-                equals: tenantDomain,
-              },
-            }
-          : {
-              slug: {
-                equals: tenantSlug,
-              },
+            domain: {
+              equals: tenantDomain,
             },
+          }
+          : {
+            slug: {
+              equals: tenantSlug,
+            },
+          },
       })
     ).docs[0]
 
@@ -52,7 +52,7 @@ export const externalUsersLogin: Endpoint = {
               },
               {
                 'tenants.tenant': {
-                  equals: fullTenant.id,
+                  equals: fullTenant?.id,
                 },
               },
             ],
@@ -66,7 +66,7 @@ export const externalUsersLogin: Endpoint = {
               },
               {
                 'tenants.tenant': {
-                  equals: fullTenant.id,
+                  equals: fullTenant?.id,
                 },
               },
             ],
@@ -75,7 +75,7 @@ export const externalUsersLogin: Endpoint = {
       },
     })
 
-    if (foundUser.totalDocs > 0) {
+    if (foundUser.totalDocs > 0 && foundUser.docs[0]) {
       try {
         const loginAttempt = await req.payload.login({
           collection: 'users',
@@ -87,20 +87,23 @@ export const externalUsersLogin: Endpoint = {
         })
 
         if (loginAttempt?.token) {
-          const collection: Collection = (req.payload.collections as { [key: string]: Collection })[
+          const collection = (req.payload.collections as { [key: string]: Collection })[
             'users'
           ]
-          const cookie = generatePayloadCookie({
+          const cookie = collection && generatePayloadCookie({
             collectionAuthConfig: collection.config.auth,
             cookiePrefix: req.payload.config.cookiePrefix,
             token: loginAttempt.token,
           })
 
+          const responseHeaders = new Headers()
+          if (cookie) {
+            responseHeaders.set('Set-Cookie', cookie)
+          }
+
           return Response.json(loginAttempt, {
             headers: headersWithCors({
-              headers: new Headers({
-                'Set-Cookie': cookie,
-              }),
+              headers: responseHeaders,
               req,
             }),
             status: 200,
