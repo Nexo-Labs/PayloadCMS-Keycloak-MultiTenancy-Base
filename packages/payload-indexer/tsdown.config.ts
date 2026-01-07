@@ -11,4 +11,11 @@ export default defineConfig({
   treeshake: true,
   outDir: 'dist',
   tsconfig: './tsconfig.json',
+  external: [
+    'payload',
+    '@payloadcms/richtext-lexical',
+    'next',
+    'react',
+    'react-dom',
+  ],
 })

@@ -11,6 +11,13 @@ export default defineConfig({
   treeshake: true,
   outDir: 'dist',
   tsconfig: './tsconfig.json',
-  external: ['@nexo-labs/payload-indexer'],
+  external: [
+    '@nexo-labs/payload-indexer',
+    'payload',
+    '@payloadcms/richtext-lexical',
+    'next',
+    'react',
+    'react-dom',
+  ],
 })
 
