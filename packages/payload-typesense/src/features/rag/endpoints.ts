@@ -5,7 +5,7 @@
  * into Payload CMS handlers that work with Payload's endpoint system.
  */
 
-import type { PayloadHandler } from "payload";
+import type { CollectionSlug, PayloadHandler } from "payload";
 import type { TypesenseRAGPluginConfig } from "../../plugin/rag-types.js";
 import { createChatPOSTHandler } from "./endpoints/chat/route.js";
 import { defaultHandleNonStreamingResponse, defaultHandleStreamingResponse } from "./stream-handlers/index.js";
@@ -18,8 +18,8 @@ import { createAgentsGETHandler } from "./endpoints/chat/agents/route.js";
  *
  * @param config - RAG plugin configuration (composable, doesn't depend on ModularPluginConfig)
  */
-export function createRAGPayloadHandlers(
-  config: TypesenseRAGPluginConfig
+export function createRAGPayloadHandlers<TSlug extends CollectionSlug>(
+  config: TypesenseRAGPluginConfig<TSlug>,
 ): Array<{ path: string; method: 'connect' | 'delete' | 'get' | 'head' | 'options' | 'patch' | 'post' | 'put'; handler: PayloadHandler }> {
   const endpoints: Array<{ path: string; method: 'connect' | 'delete' | 'get' | 'head' | 'options' | 'patch' | 'post' | 'put'; handler: PayloadHandler }> = [];
 
@@ -49,7 +49,7 @@ export function createRAGPayloadHandlers(
     path: "/chat",
     method: "post" as const,
     handler: createChatPOSTHandler({
-      collectionName: 'chat-sessions', // Default fallback
+      collectionName: config.collectionName,
       checkPermissions: callbacks.checkPermissions,
       typesense,
       rag: ragFeatureConfig,

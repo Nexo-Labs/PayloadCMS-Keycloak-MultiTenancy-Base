@@ -72,6 +72,7 @@ const { plugin: indexerPlugin } = createIndexerPlugin({
 // 3. Create Typesense RAG plugin (search endpoints + schema sync)
 const typesenseRAGPlugin = createTypesenseRAGPlugin({
     typesense: typesenseConnection,
+    collectionName: 'chat-sessions',
     collections,
     search: {
         enabled: true,

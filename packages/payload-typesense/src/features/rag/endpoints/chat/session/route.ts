@@ -1,4 +1,4 @@
-import { Payload, PayloadRequest } from 'payload';
+import { CollectionSlug, Payload, PayloadRequest } from 'payload';
 import { jsonResponse } from '../validators/index.js'
 import { logger } from '../../../../../core/logging/logger.js'
 import { SessionConfig, getActiveSession, getSessionByConversationId, closeSession } from '../../../handlers/session-handlers.js';
@@ -6,12 +6,12 @@ import { SessionConfig, getActiveSession, getSessionByConversationId, closeSessi
 /**
  * Configuration for session endpoints
  */
-export type SessionEndpointConfig = {
+export type SessionEndpointConfig<TSlug extends CollectionSlug> = {
   /** Get Payload instance */
   getPayload: () => Promise<Payload>
   checkPermissions: (request: PayloadRequest) => Promise<boolean>;
   /** Session configuration */
-  sessionConfig?: SessionConfig
+  sessionConfig?: SessionConfig<TSlug>
 }
 
 /**
@@ -21,7 +21,7 @@ export type SessionEndpointConfig = {
  * - ?active=true → Get the most recent active session
  * - ?conversationId=xxx → Get a specific session by conversation ID
  */
-export function createSessionGETHandler(config: SessionEndpointConfig) {
+export function createSessionGETHandler<TSlug extends CollectionSlug>(config: SessionEndpointConfig<TSlug>) {
   return async function GET(request: PayloadRequest) {
     try {
       if (!await config.checkPermissions(request)) {
@@ -93,7 +93,7 @@ export function createSessionGETHandler(config: SessionEndpointConfig) {
  * DELETE /api/chat/session?conversationId=xxx
  * Close a chat session
  */
-export function createSessionDELETEHandler(config: SessionEndpointConfig) {
+export function createSessionDELETEHandler<TSlug extends CollectionSlug>(config: SessionEndpointConfig<TSlug>) {
   return async function DELETE(request: PayloadRequest) {
     try {
       if (!await config.checkPermissions(request)) {

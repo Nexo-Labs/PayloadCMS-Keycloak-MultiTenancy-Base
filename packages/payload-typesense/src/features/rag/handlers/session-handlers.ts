@@ -21,9 +21,9 @@ export type ChatSessionData = {
 /**
  * Configuration for session operations
  */
-export type SessionConfig = {
+export type SessionConfig<TSlug extends CollectionSlug> = {
   /** Collection name for sessions */
-  collectionName?: CollectionSlug
+  collectionName?: TSlug
   /** Time window for active sessions in milliseconds */
   activeSessionWindow?: number
 }
@@ -36,12 +36,15 @@ export type SessionConfig = {
  * @param config - Session configuration
  * @returns Promise with session data or null
  */
-export async function getActiveSession(
+export async function getActiveSession<TSlug extends CollectionSlug>(
   payload: Payload,
   userId: string | number,
-  config: SessionConfig = {},
+  config: SessionConfig<TSlug> = {},
 ): Promise<ChatSessionData | null> {
-  const collectionName = config.collectionName || 'chat-sessions'
+  const collectionName = config.collectionName
+  if (!collectionName) {
+    throw new Error('Collection name is required to get active session')
+  }
   const windowMs = config.activeSessionWindow || 24 * 60 * 60 * 1000 // 24 hours default
 
   const cutoffTime = new Date(Date.now() - windowMs)
@@ -87,13 +90,16 @@ export async function getActiveSession(
  * @param config - Session configuration
  * @returns Promise with session data or null
  */
-export async function getSessionByConversationId(
+export async function getSessionByConversationId<TSlug extends CollectionSlug>(
   payload: Payload,
   userId: string | number,
   conversationId: string,
-  config: SessionConfig = {},
+  config: SessionConfig<TSlug> = {},
 ): Promise<ChatSessionData | null> {
-  const collectionName = config.collectionName || 'chat-sessions'
+  const collectionName = config.collectionName
+  if (!collectionName) {
+    throw new Error('Collection name is required to get a session by conversation ID')
+  }
 
   const chatSessions = await payload.find({
     collection: collectionName,
@@ -130,14 +136,16 @@ export async function getSessionByConversationId(
  * @param config - Session configuration
  * @returns Promise with updated session data or null if not found
  */
-export async function closeSession(
+export async function closeSession<TSlug extends CollectionSlug>(
   payload: Payload,
   userId: string | number,
   conversationId: string,
-  config: SessionConfig = {},
+  config: SessionConfig<TSlug> = {},
 ): Promise<ChatSessionData | null> {
-  const collectionName = config.collectionName || 'chat-sessions'
-
+  const collectionName = config.collectionName
+  if (!collectionName) {
+    throw new Error('Collection name is required to close a session')
+  }
   const chatSessions = await payload.find({
     collection: collectionName,
     where: {
@@ -175,7 +183,7 @@ export async function closeSession(
     data: {
       status: 'closed',
       closed_at: new Date().toISOString(),
-    },
+    } as any,
   })
 
   return {

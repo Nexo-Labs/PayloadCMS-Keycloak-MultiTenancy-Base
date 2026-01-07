@@ -11,6 +11,7 @@ import type {
   HNSWConfig,
   AdvancedSearchConfig,
 } from "../shared/types/plugin-types.js";
+import { CollectionSlug } from "payload";
 
 /**
  * Search feature configuration for the Typesense RAG plugin
@@ -38,9 +39,11 @@ export interface TypesenseSearchConfig {
  * - Schema synchronization
  * - Agent synchronization
  */
-export interface TypesenseRAGPluginConfig {
+export interface TypesenseRAGPluginConfig<TSlug extends CollectionSlug> {
   /** Typesense connection configuration */
   typesense: TypesenseConnectionConfig;
+
+  collectionName: TSlug;
 
   /**
    * Embedding provider config (for RAG query embedding)

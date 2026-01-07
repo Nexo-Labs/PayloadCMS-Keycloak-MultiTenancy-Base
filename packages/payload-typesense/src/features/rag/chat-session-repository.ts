@@ -56,7 +56,7 @@ export async function saveChatSession(
   assistantMessage: string,
   sources: ChunkSource[],
   spending: SpendingEntry[],
-  collectionName: CollectionSlug = 'chat-sessions'
+  collectionName: CollectionSlug
 ): Promise<void> {
   try {
     // Check if session already exists
@@ -123,13 +123,13 @@ export async function saveChatSession(
 /**
  * Update an existing chat session
  */
-async function updateExistingSession(
+async function updateExistingSession<TSlug extends CollectionSlug>(
   payload: Payload,
   session: ChatSessionDocument,
   newUserMessage: ChatMessageWithSources,
   newAssistantMessage: ChatMessageWithSources,
   spending: SpendingEntry[],
-  collectionName: CollectionSlug,
+  collectionName: TSlug,
 ): Promise<void> {
   const existingMessages = (session.messages as ChatMessageWithSources[]) || []
   const existingSpending = (session.spending as SpendingEntry[]) || []
@@ -151,7 +151,7 @@ async function updateExistingSession(
       total_cost: totalCost,
       last_activity: new Date().toISOString(),
       status: 'active',
-    },
+    } as any,
   })
 
   logger.info('Chat session updated successfully', {

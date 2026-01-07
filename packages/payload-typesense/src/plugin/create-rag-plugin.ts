@@ -39,7 +39,7 @@
  * ```
  */
 
-import type { Config } from "payload";
+import type { CollectionSlug, Config } from "payload";
 import type { TypesenseRAGPluginConfig } from "./rag-types.js";
 import { Logger } from "@nexo-labs/payload-indexer";
 import { createTypesenseClient } from "../core/client/typesense-client.js";
@@ -60,10 +60,10 @@ import { AgentManager } from "../features/rag/services/agent-manager.js";
  * @param config - Typesense RAG plugin configuration
  * @returns Payload config modifier function
  */
-export function createTypesenseRAGPlugin(config: TypesenseRAGPluginConfig) {
+export function createTypesenseRAGPlugin<TConfig extends Config, TSlug extends CollectionSlug>(config: TypesenseRAGPluginConfig<TSlug>) {
   const logger = new Logger({ enabled: true, prefix: "[payload-typesense]" });
 
-  return (payloadConfig: Config): Config => {
+  return (payloadConfig: TConfig): TConfig => {
     // Create Typesense client
     const typesenseClient = createTypesenseClient(config.typesense);
 
@@ -92,6 +92,7 @@ export function createTypesenseRAGPlugin(config: TypesenseRAGPluginConfig) {
     if (config.agents && config.agents.length > 0 && config.callbacks) {
       const ragEndpoints = createRAGPayloadHandlers({
         typesense: config.typesense,
+        collectionName: config.collectionName,
         embeddingConfig: config.embeddingConfig,
         agents: config.agents,
         callbacks: config.callbacks,

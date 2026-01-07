@@ -6,6 +6,7 @@ import { fileURLToPath } from 'url'
 
 import { Pages } from './collections/Pages'
 import { Tenants } from './collections/Tenants'
+import { ChatSessions } from './collections/ChatSessions'
 import Users from './collections/Users'
 import { multiTenantPlugin } from '@payloadcms/plugin-multi-tenant'
 import { isSuperAdmin } from './access/isSuperAdmin'
@@ -23,7 +24,7 @@ export default buildConfig({
   admin: {
     user: 'users',
   },
-  collections: [Pages, Users, Tenants],
+  collections: [Pages, Users, Tenants, ChatSessions],
   db: postgresAdapter({
     pool: {
       connectionString: process.env.DATABASE_URL,

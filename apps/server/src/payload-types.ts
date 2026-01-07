@@ -70,6 +70,7 @@ export interface Config {
     pages: Page;
     users: User;
     tenants: Tenant;
+    'chat-sessions': ChatSession;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -80,6 +81,7 @@ export interface Config {
     pages: PagesSelect<false> | PagesSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
     tenants: TenantsSelect<false> | TenantsSelect<true>;
+    'chat-sessions': ChatSessionsSelect<false> | ChatSessionsSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -200,6 +202,64 @@ export interface User {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "chat-sessions".
+ */
+export interface ChatSession {
+  id: number;
+  user: string | User;
+  /**
+   * ID de conversación de Typesense
+   */
+  conversation_id: string;
+  /**
+   * Active = en uso. Closed = cerrada por el usuario. La expiración (>24h inactiva) se calcula dinámicamente.
+   */
+  status: 'active' | 'closed';
+  /**
+   * Historial de mensajes en formato JSON: [{role, content, timestamp, sources}]
+   */
+  messages:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  /**
+   * Detalle de gastos por servicio: [{service, model, tokens, cost_usd, timestamp}]
+   */
+  spending:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  /**
+   * Total de tokens usados en esta conversación
+   */
+  total_tokens: number;
+  /**
+   * Costo total estimado en USD
+   */
+  total_cost: number;
+  /**
+   * Última actividad. Se actualiza automáticamente en cada mensaje. Las sesiones con >24h de inactividad se consideran expiradas (calculado dinámicamente).
+   */
+  last_activity: string;
+  /**
+   * Fecha de cierre manual
+   */
+  closed_at?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
 export interface PayloadKv {
@@ -233,6 +293,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'tenants';
         value: number | Tenant;
+      } | null)
+    | ({
+        relationTo: 'chat-sessions';
+        value: number | ChatSession;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -336,6 +400,23 @@ export interface TenantsSelect<T extends boolean = true> {
   slug?: T;
   allowPublicRead?: T;
   keycloakOrgId?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "chat-sessions_select".
+ */
+export interface ChatSessionsSelect<T extends boolean = true> {
+  user?: T;
+  conversation_id?: T;
+  status?: T;
+  messages?: T;
+  spending?: T;
+  total_tokens?: T;
+  total_cost?: T;
+  last_activity?: T;
+  closed_at?: T;
   updatedAt?: T;
   createdAt?: T;
 }
